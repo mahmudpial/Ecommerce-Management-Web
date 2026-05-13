@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
 
-// ভিউগুলো ইম্পোর্ট করুন (আপনাকে এই ফাইলগুলো views ফোল্ডারে তৈরি করতে হবে)
+// import views (you need to create these files in the views folder)
 const routes = [
   { path: '/', component: () => import('../views/Home.vue'), name: 'Home' },
   { path: '/login', component: () => import('../views/Login.vue'), name: 'Login' },
@@ -18,7 +18,7 @@ const router = createRouter({
   routes,
 })
 
-// রাউট গার্ড: প্রটেক্টেড পেজ চেক করা
+// route guard: For protected routes, check if the user is authenticated before allowing access
 router.beforeEach((to, from, next) => {
   const authStore = useAuthStore()
 
