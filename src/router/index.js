@@ -3,11 +3,31 @@ import { useAuthStore } from '../stores/auth'
 import Home from '../views/Home.vue'
 import Login from '../views/Login.vue'
 import Dashboard from '../views/Dashboard.vue'
+import Products from '../views/Products.vue'
+import ProductDetails from '../views/ProductDetails.vue'
+import Cart from '../views/Cart.vue'
 
 // import views (you need to create these files in the views folder)
 const routes = [
   { path: '/', component: Home, name: 'Home' },
   { path: '/login', component: Login, name: 'Login' },
+
+  {
+    path: '/products',
+    component: Products,
+    name: 'Products',
+  },
+  {
+    path: '/product/:id',
+    component: ProductDetails,
+    name: 'ProductDetails',
+    props: true,
+  },
+  {
+    path: '/cart',
+    component: Cart,
+    name: 'cart',
+  },
   {
     path: '/dashboard',
     component: Dashboard,
