@@ -63,15 +63,23 @@ const handleLogin = async () => {
     errorMessage.value = '';
 
     try {
+        // ১. Sanctum CSRF কুকি ইনিশিয়ালাইজ (যদি সেশন বেজড অথ হয়)
+        // await axios.get('http://127.0.0.1:8000/sanctum/csrf-cookie');
+
+        // ২. লগইন রিকোয়েস্ট
         await authStore.login(form);
-        // if login is successful, redirect to dashboard
-        router.push({ name: 'Dashboard' });
+
+        // ৩. রিডাইরেক্ট লজিক (Redirect back if coming from checkout)
+        const redirectPath = router.currentRoute.value.query.redirect || '/dashboard';
+        router.push(redirectPath);
+
     } catch (error) {
-        // handle different error scenarios from the server response
-        if (error.response && error.response.status === 401) {
-            errorMessage.value = "Email or password is incorrect. Please try again.";
+        if (error.response && error.response.status === 422) {
+            errorMessage.value = "Invalid data provided.";
+        } else if (error.response && error.response.status === 401) {
+            errorMessage.value = "Email or password is incorrect.";
         } else {
-            errorMessage.value = "There was an error connecting to the server. Please try again.";
+            errorMessage.value = "Something went wrong. Is the server running?";
         }
     } finally {
         loading.value = false;

@@ -74,7 +74,7 @@
                                     class="rounded-2 border" style="width: 55px; height: 55px; object-fit: contain;">
                                 <div class="flex-grow-1">
                                     <h6 class="small fw-bold mb-0 text-truncate" style="max-width: 180px;">{{ item.name
-                                        }}</h6>
+                                    }}</h6>
                                     <span class="x-small text-muted">Qty: {{ item.quantity }}</span>
                                 </div>
                                 <span class="small fw-bold text-dark">৳{{ item.price * item.quantity }}</span>
@@ -125,7 +125,7 @@ const placeOrder = () => {
     alert("Order Placed Successfully!");
     cartStore.items = []; // অর্ডার হয়ে গেলে কার্ট ক্লিয়ার
     cartStore.saveToLocalStorage();
-    router.push('/'); // হোম পেজে ফেরত পাঠানো
+    router.push('/order-success'); // অর্ডার সফল হলে অর্ডার সুকসেস পেজে পাঠানো
 };
 </script>
 

@@ -174,7 +174,8 @@
 <script setup>
 import { reactive, onMounted } from 'vue';
 import { useProductStore } from '../stores/product';
-
+import { useCartStore } from '../stores/cart';
+const cartStore = useCartStore();
 const productStore = useProductStore();
 
 const filters = reactive({
@@ -195,7 +196,12 @@ const resetFilters = () => {
 };
 
 const addToCart = (product) => {
-    alert(`${product.name} added to cart!`);
+    if (product.stock > 0) {
+        cartStore.addToCart(product, 1);
+        alert(`${product.name} added to cart!`);
+    } else {
+        alert("Sorry, out of stock!");
+    }
 };
 
 onMounted(() => {
