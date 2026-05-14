@@ -23,8 +23,9 @@
                 <div class="d-flex align-items-center">
                     <router-link to="/cart" class="btn btn-outline-light me-3 position-relative">
                         <i class="bi bi-cart3"></i>
-                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                            0
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-primary"
+                            v-if="cartStore.cartCount > 0" style="font-size: 0.6rem;">
+                            {{ cartStore.cartCount }}
                         </span>
                     </router-link>
 
@@ -57,9 +58,11 @@
 <script setup>
 import { useAuthStore } from '../stores/auth';
 import { useRouter } from 'vue-router';
+import { useCartStore } from '../stores/cart';
 
 const authStore = useAuthStore();
 const router = useRouter();
+const cartStore = useCartStore();
 
 const handleLogout = () => {
     if (confirm('Are you sure you want to logout?')) {

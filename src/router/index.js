@@ -6,6 +6,7 @@ import Dashboard from '../views/Dashboard.vue'
 import Products from '../views/Products.vue'
 import ProductDetails from '../views/ProductDetails.vue'
 import Cart from '../views/Cart.vue'
+import Checkout from '../views/Checkout.vue'
 
 // import views (you need to create these files in the views folder)
 const routes = [
@@ -27,6 +28,11 @@ const routes = [
     path: '/cart',
     component: Cart,
     name: 'cart',
+  },
+  {
+    path: '/checkout',
+    component: Checkout,
+    name: 'Checkout',
   },
   {
     path: '/dashboard',

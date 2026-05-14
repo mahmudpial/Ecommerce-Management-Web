@@ -92,7 +92,7 @@
                             <div class="col-md-9">
                                 <button
                                     class="btn btn-dark btn-lg w-100 rounded-3 py-3 fw-bold d-flex align-items-center justify-content-center gap-2 shadow-sm border-0 transition-all"
-                                    :disabled="product.stock <= 0" @click="addToCart(product)">
+                                    :disabled="product.stock <= 0" @click="handleAddToCart">
                                     <i class="bi bi-bag-plus fs-4"></i>
                                     Add to Shopping Cart
                                 </button>
@@ -151,8 +151,10 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
+import { useCartStore } from '../stores/cart';
 import axios from 'axios';
 
+const cartStore = useCartStore();
 const route = useRoute();
 const product = ref(null);
 const loading = ref(true);
@@ -169,8 +171,11 @@ const fetchProductDetails = async () => {
     }
 };
 
-const addToCart = (product) => {
-    alert(`${quantity.value} item(s) of ${product.name} added to cart!`);
+const handleAddToCart = () => {
+    if (product.value.stock > 0) {
+        cartStore.addToCart(product.value, quantity.value);
+        alert(`${product.value.name} added to cart!`);
+    }
 };
 
 onMounted(fetchProductDetails);
