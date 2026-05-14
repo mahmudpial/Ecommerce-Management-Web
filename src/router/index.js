@@ -80,6 +80,11 @@ const routes = [
         name: 'CategoryBrand',
         component: () => import('../views/admin/CategoryBrand.vue'),
       },
+      {
+        path: 'reports',
+        name: 'AdminReports',
+        component: () => import('../views/admin/Reports.vue'),
+      },
     ],
   },
   {

@@ -54,6 +54,12 @@
                             <i class="bi bi-tags"></i> Brandegory Control
                         </router-link>
                     </li>
+                    <li class="nav-item">
+                        <router-link to="/admin/reports" @click="closeSidebarOnMobile"
+                            class="nav-link text-white rounded p-2.5 d-flex align-items-center gap-2">
+                            <i class="bi bi-graph-up-arrow"></i> Business Reports
+                        </router-link>
+                    </li>
                 </ul>
             </div>
 
