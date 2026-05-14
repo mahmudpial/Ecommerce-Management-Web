@@ -10,7 +10,7 @@
             </div>
 
             <div v-if="cartStore.items.length === 0"
-                class="text-center py-5 bg-white rounded-4 border border-dashed border-2">
+                class="text-center py-5 bg-white rounded-4 border border-dashed border-2 px-4">
                 <div class="mb-3">
                     <i class="bi bi-cart-x display-2 text-primary opacity-50"></i>
                 </div>
@@ -26,47 +26,54 @@
                     <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
                         <div class="table-responsive">
                             <table class="table table-borderless align-middle mb-0">
-                                <thead class="bg-light">
+                                <thead class="bg-light border-bottom">
                                     <tr>
                                         <th class="ps-4 py-3 text-uppercase small fw-bold text-secondary">Product</th>
-                                        <th class="py-3 text-uppercase small fw-bold text-secondary text-center">
-                                            Quantity</th>
-                                        <th class="py-3 text-uppercase small fw-bold text-secondary text-end">Price</th>
-                                        <th class="py-3 text-end pe-4"></th>
+                                        <th class="py-3 text-uppercase small fw-bold text-secondary text-center"
+                                            style="width: 150px;">Quantity</th>
+                                        <th class="py-3 text-uppercase small fw-bold text-secondary text-end"
+                                            style="width: 120px;">Price</th>
+                                        <th class="py-3 text-end pe-4" style="width: 60px;"></th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <tr v-for="item in cartStore.items" :key="item.id" class="border-bottom">
                                         <td class="ps-4 py-4">
-                                            <div class="d-flex align-items-center gap-3">
-                                                <img :src="item.image ? `http://127.0.0.1:8000/storage/${item.image}` : 'https://placehold.jp/80x80.png'"
-                                                    class="rounded-3 border object-fit-contain bg-light"
-                                                    style="width: 80px; height: 80px;">
+                                            <div class="d-flex align-items-center">
+                                                <img :src="item.product?.image || 'https://via.placeholder.com/60'"
+                                                    class="rounded-3 me-3 object-fit-cover border" width="60"
+                                                    height="60" alt="product">
                                                 <div>
-                                                    <h6 class="fw-bold mb-1 text-dark">{{ item.name }}</h6>
-                                                    <p class="small text-muted mb-0">Unit Price: ৳{{ item.price }}</p>
+                                                    <h6 class="fw-bold text-dark mb-1">{{ item.product?.name || `Unknown
+                                                        Product` }}</h6>
+                                                    <p class="text-muted small mb-0">Unit Price: ৳{{ item.product?.price
+                                                        }}</p>
                                                 </div>
                                             </div>
                                         </td>
-                                        <td class="py-4">
-                                            <div class="d-flex justify-content-center">
-                                                <div class="input-group input-group-sm shadow-xs" style="width: 110px;">
-                                                    <button class="btn btn-white border px-2"
-                                                        @click="cartStore.updateQuantity(item.id, -1)">-</button>
-                                                    <input type="text"
-                                                        class="form-control text-center border-top border-bottom bg-white fw-bold shadow-none"
-                                                        :value="item.quantity" readonly>
-                                                    <button class="btn btn-white border px-2"
-                                                        @click="cartStore.updateQuantity(item.id, 1)">+</button>
-                                                </div>
+
+                                        <td class="text-center py-4">
+                                            <div class="d-inline-flex align-items-center bg-light border rounded-3 p-1">
+                                                <button @click="cartStore.updateQuantity(item.id, item.quantity - 1)"
+                                                    class="btn btn-sm btn-light border-0 shadow-none px-2 py-1">
+                                                    <i class="bi bi-dash-lg small"></i>
+                                                </button>
+                                                <span class="mx-3 fw-bold text-dark" style="min-width: 20px;">{{
+                                                    item.quantity }}</span>
+                                                <button @click="cartStore.updateQuantity(item.id, item.quantity + 1)"
+                                                    class="btn btn-sm btn-light border-0 shadow-none px-2 py-1">
+                                                    <i class="bi bi-plus-lg small"></i>
+                                                </button>
                                             </div>
                                         </td>
-                                        <td class="py-4 text-end fw-bold text-dark">
-                                            ৳{{ item.price * item.quantity }}
+
+                                        <td class="text-end fw-bold text-dark py-4">
+                                            ৳{{ (item.product?.price * item.quantity) }}
                                         </td>
-                                        <td class="py-4 text-end pe-4">
-                                            <button class="btn btn-link text-danger p-0 shadow-none"
-                                                @click="cartStore.removeFromCart(item.id)">
+
+                                        <td class="text-end pe-4 py-4">
+                                            <button @click="cartStore.removeFromCart(item.id)"
+                                                class="btn btn-link text-danger p-0 shadow-none">
                                                 <i class="bi bi-trash3 fs-5"></i>
                                             </button>
                                         </td>
@@ -77,8 +84,9 @@
                     </div>
 
                     <div class="mt-4">
-                        <router-link to="/" class="text-decoration-none text-primary fw-bold small">
-                            <i class="bi bi-arrow-left me-1"></i> Continue Shopping
+                        <router-link to="/"
+                            class="text-decoration-none text-primary fw-bold small transition-all d-inline-flex align-items-center">
+                            <i class="bi bi-arrow-left me-2"></i> Continue Shopping
                         </router-link>
                     </div>
                 </div>
@@ -89,15 +97,15 @@
 
                         <div class="d-flex justify-content-between mb-3 text-muted">
                             <span>Subtotal ({{ cartStore.cartCount }} items)</span>
-                            <span>৳{{ cartStore.totalPrice }}</span>
+                            <span class="fw-medium text-dark">৳{{ cartStore.totalPrice }}</span>
                         </div>
                         <div class="d-flex justify-content-between mb-3 text-muted">
                             <span>Shipping Fee</span>
-                            <span class="text-success">Free</span>
+                            <span class="text-success fw-medium">Free</span>
                         </div>
                         <div class="d-flex justify-content-between mb-4 text-muted">
                             <span>Tax (Estimated)</span>
-                            <span>৳0</span>
+                            <span class="fw-medium text-dark">৳0</span>
                         </div>
 
                         <hr class="my-4 opacity-50">
@@ -108,12 +116,12 @@
                         </div>
 
                         <router-link to="/checkout"
-                            class="btn btn-dark w-100 py-3 rounded-3 fw-bold mb-3 shadow-sm border-0 text-decoration-none d-block text-center checkout-btn">
+                            class="btn btn-dark w-100 py-3 rounded-3 fw-bold mb-3 shadow-sm border-0 text-decoration-none d-block text-center checkout-btn transition-all">
                             Proceed to Checkout
                             <i class="bi bi-arrow-right ms-2"></i>
                         </router-link>
 
-                        <div class="text-center">
+                        <div class="text-center pt-2">
                             <img src="https://img.icons8.com/color/48/000000/visa.png" width="30"
                                 class="me-2 opacity-75">
                             <img src="https://img.icons8.com/color/48/000000/mastercard.png" width="30"
@@ -139,12 +147,20 @@ const cartStore = useCartStore();
 }
 
 .table thead th {
-    border: none;
     letter-spacing: 0.5px;
+    font-size: 0.75rem;
 }
 
-.shadow-xs {
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.02);
+.table tbody tr {
+    transition: background-color 0.2s ease;
+}
+
+.table tbody tr:hover {
+    background-color: #fafafa;
+}
+
+.checkout-btn {
+    background-color: #1e293b;
 }
 
 .checkout-btn:hover {
@@ -159,11 +175,5 @@ const cartStore = useCartStore();
 
 .transition-all {
     transition: all 0.3s ease;
-}
-
-/* শপ নেভ স্টাইল */
-.btn-white {
-    background: #fff;
-    color: #333;
 }
 </style>

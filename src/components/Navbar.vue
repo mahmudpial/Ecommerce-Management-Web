@@ -5,7 +5,7 @@
                 <div class="logo-icon bg-primary text-white rounded-3 me-2">
                     <i class="bi bi-shop-window"></i>
                 </div>
-                <span class="fw-bolder text-dark">Commercia<span class="text-primary">Pro</span></span>
+                <span class="fw-bolder text-dark">Commercia<span class="text-primary ms-1">Pro</span></span>
             </router-link>
 
             <div class="d-flex align-items-center gap-2 d-lg-none">

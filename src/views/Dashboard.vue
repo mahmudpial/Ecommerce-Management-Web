@@ -20,7 +20,7 @@
                             style="width: 60px; height: 60px;">
                             <i class="bi bi-bag-check fs-3"></i>
                         </div>
-                        <h4 class="fw-bold mb-0">12</h4>
+                        <h4 class="fw-bold mb-0">{{ orders.length }}</h4>
                         <span class="text-muted small fw-bold text-uppercase">Total Orders</span>
                     </div>
                 </div>
@@ -30,7 +30,7 @@
                             style="width: 60px; height: 60px;">
                             <i class="bi bi-clock-history fs-3"></i>
                         </div>
-                        <h4 class="fw-bold mb-0">02</h4>
+                        <h4 class="fw-bold mb-0">{{ pendingOrdersCount }}</h4>
                         <span class="text-muted small fw-bold text-uppercase">Pending Deliveries</span>
                     </div>
                 </div>
@@ -50,7 +50,7 @@
                 <div class="col-lg-4">
                     <div class="card border-0 shadow-sm rounded-4 p-4 mb-4">
                         <div class="text-center mb-4">
-                            <img :src="`https://ui-avatars.com/api/?name=${authStore.user?.name}&background=0d6efd&color=fff`"
+                            <img :src="`https://ui-avatars.com/api/?name=${authStore.user?.name}&background=0d6efd&color=fff&bold=true`"
                                 class="rounded-circle border border-4 border-white shadow-sm" width="100">
                             <h5 class="fw-bold mt-3 mb-0">{{ authStore.user?.name }}</h5>
                             <span class="badge bg-dark rounded-pill px-3 mt-2">{{ authStore.role }}</span>
@@ -58,12 +58,11 @@
                         <hr class="opacity-25">
                         <div class="mb-3">
                             <label class="small text-muted fw-bold text-uppercase mb-1">Email Address</label>
-                            <p class="mb-0 fw-bold text-dark">{{ authStore.user?.email }}</p>
+                            <p class="mb-0 fw-bold text-dark text-truncate">{{ authStore.user?.email }}</p>
                         </div>
                         <div class="mb-3">
                             <label class="small text-muted fw-bold text-uppercase mb-1">Member Since</label>
-                            <p class="mb-0 fw-bold text-dark">{{ new
-                                Date(authStore.user?.created_at).toLocaleDateString() }}</p>
+                            <p class="mb-0 fw-bold text-dark">{{ formatDate(authStore.user?.created_at) }}</p>
                         </div>
                         <button class="btn btn-outline-primary w-100 rounded-3 mt-3 fw-bold">
                             Edit Profile
@@ -73,9 +72,12 @@
 
                 <div class="col-lg-8">
                     <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
-                        <div class="card-header bg-white p-4 border-0">
+                        <div
+                            class="card-header bg-white p-4 border-0 d-flex justify-content-between align-items-center">
                             <h5 class="fw-bold mb-0">Recent Orders</h5>
+                            <span v-if="loading" class="spinner-border spinner-border-sm text-primary"></span>
                         </div>
+
                         <div class="table-responsive">
                             <table class="table table-borderless align-middle mb-0">
                                 <thead class="bg-light">
@@ -88,28 +90,28 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr>
-                                        <td class="ps-4 py-4 fw-bold">#COM-98421</td>
-                                        <td class="py-4 text-muted">May 14, 2026</td>
-                                        <td class="py-4">
-                                            <span
-                                                class="badge bg-success-subtle text-success border-0 px-3">Delivered</span>
+                                    <tr v-if="orders.length === 0 && !loading">
+                                        <td colspan="4" class="text-center py-5 text-muted">
+                                            <i class="bi bi-mailbox fs-2 d-block mb-2"></i>
+                                            You haven't placed any orders yet.
                                         </td>
-                                        <td class="py-4 text-end pe-4 fw-bold">৳1,450</td>
                                     </tr>
-                                    <tr>
-                                        <td class="ps-4 py-4 fw-bold">#COM-98410</td>
-                                        <td class="py-4 text-muted">May 10, 2026</td>
-                                        <td class="py-4">
-                                            <span
-                                                class="badge bg-warning-subtle text-warning border-0 px-3">Pending</span>
+                                    <tr v-for="order in orders.slice(0, 5)" :key="order.id" class="border-bottom-0">
+                                        <td class="ps-4 py-3 fw-bold text-primary">#{{ order.invoice_number ||
+                                            'COM-' + order.id }}</td>
+                                        <td class="py-3 text-muted">{{ formatDate(order.created_at) }}</td>
+                                        <td class="py-3">
+                                            <span :class="getStatusClass(order.status)"
+                                                class="badge rounded-pill px-3 py-1 text-uppercase border-0">
+                                                {{ order.status }}
+                                            </span>
                                         </td>
-                                        <td class="py-4 text-end pe-4 fw-bold">৳3,200</td>
+                                        <td class="py-3 text-end pe-4 fw-bold text-dark">৳{{ order.total_amount }}</td>
                                     </tr>
                                 </tbody>
                             </table>
                         </div>
-                        <div class="p-4 text-center bg-light-subtle">
+                        <div class="p-4 text-center bg-light-subtle border-top">
                             <router-link to="/orders" class="text-primary text-decoration-none fw-bold small">
                                 View All Orders <i class="bi bi-arrow-right ms-1"></i>
                             </router-link>
@@ -122,11 +124,58 @@
 </template>
 
 <script setup>
+import { ref, computed, onMounted } from 'vue'; // ফিক্সড: onMounted এখানে ইমপোর্ট করা হয়েছে
 import { useAuthStore } from '../stores/auth';
 import { useCartStore } from '../stores/cart';
+import axiosClient from '../api/axios';
 
 const authStore = useAuthStore();
 const cartStore = useCartStore();
+
+const orders = ref([]);
+const loading = ref(true);
+
+// এপিআই থেকে কাস্টমারের রিয়েল অর্ডার ডেটা তুলে আনা
+const fetchDashboardData = async () => {
+    try {
+        const response = await axiosClient.get('/my-orders');
+        // লারাভেল paginate(10) ব্যবহার করায় ডেটা response.data.data এর ভেতরে থাকে
+        orders.value = response.data.data || response.data;
+    } catch (error) {
+        console.error("Failed to load dashboard orders:", error);
+    } finally {
+        loading.value = false;
+    }
+};
+
+// কম্পিউটেড প্রোপার্টি: পেন্ডিং অর্ডার কাউন্ট করা
+const pendingOrdersCount = computed(() => {
+    return orders.value.filter(order => order.status.toLowerCase() === 'pending').length;
+});
+
+// ডেট ফরম্যাটার হিলপার ফাংশন
+const formatDate = (dateString) => {
+    if (!dateString) return '';
+    return new Date(dateString).toLocaleDateString('en-US', {
+        year: 'numeric', month: 'short', day: 'numeric'
+    });
+};
+
+// স্ট্যাটাস ব্যাজ ডাইনামিক সিএসএস ক্লাস
+const getStatusClass = (status) => {
+    const s = status.toLowerCase();
+    if (s === 'delivered') return 'bg-success-subtle text-success';
+    if (s === 'pending') return 'bg-warning-subtle text-warning';
+    if (s === 'processing') return 'bg-info-subtle text-info';
+    return 'bg-danger-subtle text-danger';
+};
+
+onMounted(() => {
+    if (authStore.isAuthenticated) {
+        cartStore.fetchCart(); // ডাটাবেজ কার্ট লোড
+        fetchDashboardData();  // ড্যাশবোর্ড অর্ডার হিস্টোরি লোড
+    }
+});
 </script>
 
 <style scoped>
@@ -140,10 +189,19 @@ const cartStore = useCartStore();
 }
 
 .card {
-    transition: transform 0.3s ease;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .card:hover {
     transform: translateY(-3px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05) !important;
+}
+
+.table tbody tr {
+    border-bottom: 1px solid #f8fafc;
+}
+
+.table tbody tr:last-child {
+    border-bottom: none;
 }
 </style>
